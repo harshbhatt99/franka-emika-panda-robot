@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<launch>
+
+    <arg name="paused" default="false"/>
+    <arg name="use_sim_time" default="false"/>
+    <arg name="gui" default="true"/>
+    <arg name="headless" default="false"/>
+    <arg name="debug" default="false"/>
+
+
+    <param name="robot_description" textfile="$(find franka_h2)/urdf/panda_robot_gazebo.urdf"/>
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <!-- Always start in paused mode, and only unpause when spawning the model -->
+        <arg name="paused" value="$(arg paused)"/>
+        <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+        <arg name="gui" value="$(arg gui)"/>
+        <arg name="headless" value="$(arg headless)"/>
+        <arg name="debug" value="$(arg debug)"/>
+    </include>
+
+    <!-- <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" output="screen" args="-param robot_description -urdf -model panda"/> -->
+
+    <!-- <node name="joint_state_publisher" type="joint_state_publisher" pkg="joint_state_publisher" /> -->
+
+    <rosparam command="load" file="$(find franka_h2)/config/panda_controller.yaml"/>
+
+
+
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
+    args = "-param robot_description -urdf -model panda_robot_gazebo
+        -J panda_joint1 0.0
+        -J panda_joint2 0.0
+        -J panda_joint3 0.0
+        -J panda_joint4 0.0
+        -J panda_joint5 0.0
+        -J panda_joint6 0.0
+        -J panda_joint7 0.0">
+        
+    </node>
+
+    <node pkg="controller_manager"
+        type="spawner"
+        name="panda_controller_spawner"
+        respawn="false" output="screen"
+        args="panda_controller"
+    />
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+
+    <param name="rate" value="2500"/>
+</launch>
